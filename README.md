@@ -1,100 +1,37 @@
-<h1>Event.Emitter</h1>
+# Laravel websocket client
 
-##	Easy EventEmitter
+### Connect app to websocket
+```js
+...
+import Larasopp from "Larasopp";
 
-### Install
-```
-npm i easy-event-emitter
-```
-
-### Create isolated emitter
-```
-import EventEmitter from "easy-event-emitter";
-
-const events = new EventEmitter();
-```
-
-### Global
-```
-const events = new EventEmitter(true);
-```
-
-### Methods
+const App = () => {
+	...
+	useEffect(() => {
+		Larasocket.connect({
+			token: 'user token',
+			host: 'ws://127.0.0.1:9002'
+		});
+	});
+	...
 
 ```
-addListener(event name, callback); //return {remove()}
-```
 
-```
-emit(event name, data); //return void
-```
-
-```
-removeAllListeners(); //return void
-```
-
-### Examples
-
-#### Isolated
-```
-const events1 = new EventEmitter();
-const events2 = new EventEmitter();
-
-events1.addListener('test', (val) => {
-	console.log(val); //hello
+### Subscribe on channel and bind event
+```js
+const channel = Larasocket.subscribe('channel-1');
+channel.bind('message', function(data) {
+	console.log(data);
 });
 
-const listener = events2.addListener('test', (val) => {
-	console.log(val); //world
-});
-
-events2.addListener('test2', (val) => {
-	console.log(val); //hi :-)
-});
-
-events1.emit('test', 'hello');
-events2.emit('test', 'world');
-events2.emit('test2', 'hi :-)');
-
-listener.remove(); //Remove current listener
-
-events2.removeAllListeners(); //Remove all listeners in current instance
+// Unsubscribe
+channel.remove();
 ```
 
-#### Groups
-```
-const events1 = new EventEmitter('test_group');
-const events2 = new EventEmitter('test_group');
+### Trigger event on subscribe channel
 
-events1.addListener('test', (val) => {
-	console.log(val); //"hello" replace "world"
-});
-
-events2.addListener('test', (val) => {
-	console.log(val); //"hello" replace "world"
-});
-
-events1.emit('test', 'hello');
-events2.emit('test', 'world');
-```
-
-#### Global
-```
-const events = new EventEmitter(true);
-events.addListener('test', (val) => {
-	console.log(val); //"hello" replace "world"
-});
-
-const listener = EventEmitter.addListener('test', (val) => {
-	console.log(val); //"hello" replace "world"
-});
-
-events.emit('test', 'hello');
-EventEmitter.emit('test', 'world');
-
-listener.remove(); //Remove current global listener
-
-events.removeAllListeners(); //Remove all global listeners
-//Or
-EventEmitter.removeAllListeners();
+```js
+Larasocket.trigger('channel-1', 'message', {
+	test: "hello world"
+},'public');
 ```

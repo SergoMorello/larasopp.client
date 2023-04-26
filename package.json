@@ -1,6 +1,6 @@
 {
   "name": "larasopp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Websocket client for laravel",
   "main": "src/index.js",
   "scripts": {

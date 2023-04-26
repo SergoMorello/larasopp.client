@@ -8,7 +8,7 @@ import Larasopp from "Larasopp";
 const App = () => {
 	...
 	useEffect(() => {
-		Larasocket.connect({
+		Larasopp.connect({
 			token: 'user token',
 			host: 'ws://127.0.0.1:9002'
 		});
@@ -19,7 +19,7 @@ const App = () => {
 
 ### Subscribe on channel and bind event
 ```js
-const channel = Larasocket.subscribe('channel-1');
+const channel = Larasopp.subscribe('channel-1');
 channel.bind('message', function(data) {
 	console.log(data);
 });
@@ -31,7 +31,7 @@ channel.remove();
 ### Trigger event on subscribe channel
 
 ```js
-Larasocket.trigger('channel-1', 'message', {
+Larasopp.trigger('channel-1', 'message', {
 	test: "hello world"
 },'public');
 ```

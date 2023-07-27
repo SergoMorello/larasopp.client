@@ -1,10 +1,12 @@
 {
   "name": "larasopp",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Websocket client for laravel",
-  "main": "src/index.js",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc"
   },
   "jest": {
     "transform": {
@@ -18,7 +20,6 @@
   "keywords": [
     "websocket",
     "laravel",
-    "react",
     "broadcast",
     "events"
   ],
@@ -29,11 +30,13 @@
   },
   "homepage": "https://github.com/SergoMorello/larasopp.client#readme",
   "devDependencies": {
-    "@babel/preset-env": "^7.20.2",
+    "@babel/preset-env": "^7.22.9",
+    "@types/jest": "^29.5.3",
     "babel-jest": "^29.4.3",
-    "jest": "^29.4.3"
+    "jest": "^29.4.3",
+    "typescript": "^5.1.6"
   },
   "dependencies": {
-    "easy-event-emitter": "^1.0.3"
+    "easy-event-emitter": "^1.0.6"
   }
 }

@@ -2,7 +2,7 @@ import EventEmitter,{
 	Events
 } from "easy-event-emitter";
 
-type TPermissions = 'public' | 'protected' | 'private';
+export type TPermissions = 'public' | 'protected' | 'private';
 
 type TMessage = {
 	subscribe?: string;
@@ -20,9 +20,9 @@ export interface IConfig {
 }
 
 abstract class Core {
-	private events: Events;
+	protected events: Events;
 	private ws?: WebSocket;
-	private status: boolean;
+	protected status: boolean;
 	private config: IConfig;
 
 	constructor(config: IConfig) {
@@ -41,8 +41,7 @@ abstract class Core {
 		this.onClose = this.onClose.bind(this);
 		this.onError = this.onError.bind(this);
 		this.onMessage = this.onMessage.bind(this);
-		this.subscribe = this.subscribe.bind(this);
-		this.trigger = this.trigger.bind(this);
+		
 	}
 
 	public setConfig(config: IConfig): void {
@@ -102,7 +101,7 @@ abstract class Core {
 		}
 	}
 
-	private isJsonString(str: string) {
+	protected isJsonString(str: string) {
 		try {
 			JSON.parse(str);
 		} catch (e) {
@@ -146,50 +145,7 @@ abstract class Core {
 		}
 	}
 
-	public subscribe(channel: string) {
-		if (this.status) {
-			this.send({
-				subscribe: channel
-			});
-		}else{
-			const event = this.events.addListener('open',() => {
-				this.send({
-					subscribe: channel
-				});
-				event.remove();
-			});
-		}
-		
-		return {
-			bind: (event: string, callback: (data: any) => void) => {
-				const retEvent = this.events.addListener(channel + ':' + event, callback);
-				return {
-					remove: () => {
-						this.send({
-							unsubscribe: channel
-						});
-						retEvent.remove();
-					}
-				}
-			},
-			remove: () => {
-				this.send({
-					unsubscribe: channel
-				});
-			}
-		}
-	}
-
-	public trigger(channel: string, event: string, message: any, permission: TPermissions = 'public') {
-		this.send({
-			channel: channel,
-			event: event,
-			message: message,
-			type: permission
-		});
-	}
-
-	private send(message: TMessage) {
+	protected send(message: TMessage) {
 		if (!this.status) {
 			return;
 		}

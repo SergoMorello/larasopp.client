@@ -1,13 +1,22 @@
-type TPermissions = 'public' | 'protected' | 'private';
+import { Events } from "easy-event-emitter";
+export type TPermissions = 'public' | 'protected' | 'private';
+type TMessage = {
+    subscribe?: string;
+    unsubscribe?: string;
+    channel?: string;
+    event?: string;
+    message?: any;
+    type?: TPermissions;
+};
 export interface IConfig {
     host: string;
     token?: string;
     tls?: boolean;
 }
 declare abstract class Core {
-    private events;
+    protected events: Events;
     private ws?;
-    private status;
+    protected status: boolean;
     private config;
     constructor(config: IConfig);
     setConfig(config: IConfig): void;
@@ -22,18 +31,11 @@ declare abstract class Core {
      * @returns {void}
      */
     disconnect(): void;
-    private isJsonString;
+    protected isJsonString(str: string): boolean;
     private onOpen;
     private onClose;
     private onError;
     private onMessage;
-    subscribe(channel: string): {
-        bind: (event: string, callback: (data: any) => void) => {
-            remove: () => void;
-        };
-        remove: () => void;
-    };
-    trigger(channel: string, event: string, message: any, permission?: TPermissions): void;
-    private send;
+    protected send(message: TMessage): void;
 }
 export default Core;

@@ -1,25 +1,57 @@
-import EventEmitter from "easy-event-emitter";
 import Core,{
-	IConfig
+	IConfig,
+	TPermissions
 } from "./Core";
 
 export default class Larasopp extends Core {
-	private static instance = new Larasopp({
-		host: '0.0.0.0'
-	});
 
 	constructor(config: IConfig) {
 		super(config);
-		Larasopp.instance?.setConfig(config);
+
+		this.subscribe = this.subscribe.bind(this);
+		this.trigger = this.trigger.bind(this);
 	}
 
-	public static setConfig = Larasopp.instance.setConfig;
+	public subscribe(channel: string) {
+		if (this.status) {
+			this.send({
+				subscribe: channel
+			});
+		}else{
+			const event = this.events.addListener('open',() => {
+				this.send({
+					subscribe: channel
+				});
+				event.remove();
+			});
+		}
+		
+		return {
+			bind: (event: string, callback: (data: any) => void) => {
+				const retEvent = this.events.addListener(channel + ':' + event, callback);
+				return {
+					remove: () => {
+						this.send({
+							unsubscribe: channel
+						});
+						retEvent.remove();
+					}
+				}
+			},
+			remove: () => {
+				this.send({
+					unsubscribe: channel
+				});
+			}
+		}
+	}
 
-	public static connect = Larasopp.instance.connect;
-
-	public static disconnect = Larasopp.instance.disconnect;
-
-	public static subscribe = Larasopp.instance.subscribe;
-
-	public static trigger = Larasopp.instance.trigger;
+	public trigger(channel: string, event: string, message: any, permission: TPermissions = 'public'): void {
+		this.send({
+			channel: channel,
+			event: event,
+			message: message,
+			type: permission
+		});
+	}
 }

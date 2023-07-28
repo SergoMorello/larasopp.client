@@ -5,33 +5,42 @@
 ...
 import Larasopp from "Larasopp";
 
-const App = () => {
-	...
-	useEffect(() => {
-		Larasopp.connect({
-			token: 'user token',
-			host: 'ws://127.0.0.1:9002'
-		});
-	});
-	...
+const larasopp = new Larasopp({
+	host: '127.0.0.1:9002',
+	token: 'token'
+});
+
+larasopp.connect();
+
+export default larasopp;
 
 ```
 
 ### Subscribe on channel and bind event
 ```js
-const channel = Larasopp.subscribe('channel-1');
-channel.bind('message', function(data) {
-	console.log(data);
+const listener = larasopp.subscribe('chat').bind('message',(data) => {
+	console.log(data.text); // Hello World
 });
 
 // Unsubscribe
-channel.remove();
+listener.remove();
 ```
 
 ### Trigger event on subscribe channel
 
 ```js
-Larasopp.trigger('channel-1', 'message', {
-	test: "hello world"
+larasopp.trigger('chat','message',{
+	text: 'Hello World'
 },'public');
+```
+
+### Disconnect
+```js
+larasopp.disconnect();
+```
+
+### Permissions
+
+```js
+'public' | 'protected' | 'private'
 ```

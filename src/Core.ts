@@ -4,12 +4,12 @@ import EventEmitter,{
 
 export type TPermissions = 'public' | 'protected' | 'private';
 
-type TMessage = {
+export type TMessage<T> = {
 	subscribe?: string;
 	unsubscribe?: string;
 	channel?: string;
 	event?: string;
-	message?: any;
+	message?: T;
 	type?: TPermissions;
 }
 
@@ -22,7 +22,7 @@ export interface IConfig {
 abstract class Core {
 	protected events: Events;
 	private ws?: WebSocket;
-	protected status: boolean;
+	protected _status: boolean;
 	private config: IConfig;
 
 	constructor(config: IConfig) {
@@ -32,8 +32,9 @@ abstract class Core {
 			tls: false,
 			...config,
 		};
-		this.status = false;
+		this._status = false;
 
+		this.send = this.send.bind(this);
 		this.setConfig = this.setConfig.bind(this);
 		this.setToken = this.setToken.bind(this);
 		this.connect = this.connect.bind(this);
@@ -77,12 +78,6 @@ abstract class Core {
 			this.onClose(e);
 		}
 
-		// this.handleTimeout = setTimeout(() => {
-		// 	this.ws?.close(1000, 'timeout');
-		// },this.timeout);
-
-		// this.startReconnect();
-
 		this.ws!.onopen = this.onOpen;
 		this.ws!.onclose = this.onClose;
 		this.ws!.onerror = this.onError;
@@ -111,25 +106,12 @@ abstract class Core {
 	}
 
 	private onOpen(e: any): void {
-		this.status = true;
+		this._status = true;
 		this.events.emit("open", e);
 	}
 
 	private onClose(e: any): void {
-		// if (e.wasClean) {
-		// 	console.log('Соединение закрыто чисто');
-		// } else {
-		// 	if (Larasopp.stepReconnect >= 5) {
-		// 		console.log('connect error');
-		// 	}else{
-		// 		setTimeout(() => {
-		// 			console.log('try reconnect...');
-		// 			Larasopp.connect(params);
-		// 			++Larasopp.stepReconnect;
-		// 		}, 3000);
-		// 	}
-		// }
-		this.status = false;
+		this._status = false;
 		this.events.emit("close", e);
 	}
 
@@ -145,7 +127,11 @@ abstract class Core {
 		}
 	}
 
-	protected send(message: TMessage) {
+	public get status(): boolean {
+		return this._status;
+	}
+
+	protected send<T>(message: TMessage<T>) {
 		if (!this.status) {
 			return;
 		}

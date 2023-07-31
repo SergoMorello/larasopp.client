@@ -2,52 +2,28 @@ import Core,{
 	IConfig,
 	TPermissions
 } from "./Core";
+import Subscribe from "./Subscribe";
 
-export default class Larasopp extends Core {
+class Larasopp extends Core {
 
 	constructor(config: IConfig) {
 		super(config);
-
+		
 		this.subscribe = this.subscribe.bind(this);
 		this.trigger = this.trigger.bind(this);
 	}
 
-	public subscribe(channel: string) {
-		if (this.status) {
-			this.send({
-				subscribe: channel
-			});
-		}else{
-			const event = this.events.addListener('open',() => {
-				this.send({
-					subscribe: channel
-				});
-				event.remove();
-			});
-		}
-		
-		return {
-			bind: (event: string, callback: (data: any) => void) => {
-				const retEvent = this.events.addListener(channel + ':' + event, callback);
-				return {
-					remove: () => {
-						this.send({
-							unsubscribe: channel
-						});
-						retEvent.remove();
-					}
-				}
-			},
-			remove: () => {
-				this.send({
-					unsubscribe: channel
-				});
-			}
-		}
+	public subscribe(channel: string): Subscribe {
+		return new Subscribe({
+			events: this.events,
+			status: this.status,
+			send: this.send,
+			channel
+		});
 	}
 
-	public trigger(channel: string, event: string, message: any, permission: TPermissions = 'public'): void {
-		this.send({
+	public trigger<T>(channel: string, event: string, message: T, permission: TPermissions = 'public'): void {
+		this.send<T>({
 			channel: channel,
 			event: event,
 			message: message,
@@ -55,3 +31,5 @@ export default class Larasopp extends Core {
 		});
 	}
 }
+
+export default Larasopp;

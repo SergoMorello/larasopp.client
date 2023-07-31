@@ -1,11 +1,11 @@
 import { Events } from "easy-event-emitter";
 export type TPermissions = 'public' | 'protected' | 'private';
-type TMessage = {
+export type TMessage<T> = {
     subscribe?: string;
     unsubscribe?: string;
     channel?: string;
     event?: string;
-    message?: any;
+    message?: T;
     type?: TPermissions;
 };
 export interface IConfig {
@@ -16,7 +16,7 @@ export interface IConfig {
 declare abstract class Core {
     protected events: Events;
     private ws?;
-    protected status: boolean;
+    protected _status: boolean;
     private config;
     constructor(config: IConfig);
     setConfig(config: IConfig): void;
@@ -36,6 +36,7 @@ declare abstract class Core {
     private onClose;
     private onError;
     private onMessage;
-    protected send(message: TMessage): void;
+    get status(): boolean;
+    protected send<T>(message: TMessage<T>): void;
 }
 export default Core;

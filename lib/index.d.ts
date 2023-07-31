@@ -1,11 +1,8 @@
 import Core, { IConfig, TPermissions } from "./Core";
-export default class Larasopp extends Core {
+import Subscribe from "./Subscribe";
+declare class Larasopp extends Core {
     constructor(config: IConfig);
-    subscribe(channel: string): {
-        bind: (event: string, callback: (data: any) => void) => {
-            remove: () => void;
-        };
-        remove: () => void;
-    };
-    trigger(channel: string, event: string, message: any, permission?: TPermissions): void;
+    subscribe(channel: string): Subscribe;
+    trigger<T>(channel: string, event: string, message: T, permission?: TPermissions): void;
 }
+export default Larasopp;

@@ -1,4 +1,9 @@
 import { Events } from "easy-event-emitter";
+export declare const ListenerEvents: readonly ["subscribe", "unsubscribe"];
+export type TListenerEvents = typeof ListenerEvents[number];
+export type TListenerCallback = (data: {
+    channel: string;
+}) => void;
 export type TPermissions = 'public' | 'protected' | 'private';
 export type TMessage<T> = {
     subscribe?: string;
@@ -36,6 +41,7 @@ declare abstract class Core {
     private onClose;
     private onError;
     private onMessage;
+    private emitListener;
     get status(): boolean;
     protected send<T>(message: TMessage<T>): void;
 }

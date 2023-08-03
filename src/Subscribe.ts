@@ -1,7 +1,11 @@
 import {
-	TMessage
+	TMessage,
+	ListenerEvents,
+	TListenerEvents,
+	TListenerCallback
 } from "./Core";
 import {
+	Event,
 	Events
 } from "easy-event-emitter";
 
@@ -66,6 +70,10 @@ class Subscribe {
 		this.send({
 			unsubscribe: this.channel
 		});
+	}
+
+	public addListener(event: TListenerEvents, callback: TListenerCallback): Event | undefined {
+		return this.events.addListener(event + ':' + this.channel, callback);
 	}
 }
 

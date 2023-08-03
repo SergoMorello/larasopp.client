@@ -1,5 +1,5 @@
-import { TMessage } from "./Core";
-import { Events } from "easy-event-emitter";
+import { TMessage, TListenerEvents, TListenerCallback } from "./Core";
+import { Event, Events } from "easy-event-emitter";
 type TReturn = {
     remove: () => void;
 };
@@ -19,5 +19,6 @@ declare class Subscribe {
     private init;
     bind<T>(event: string, callback: (data: T) => void): TReturn;
     remove(): void;
+    addListener(event: TListenerEvents, callback: TListenerCallback): Event | undefined;
 }
 export default Subscribe;

@@ -2,6 +2,11 @@ import EventEmitter,{
 	Events
 } from "easy-event-emitter";
 
+export const ListenerEvents = ['subscribe', 'unsubscribe'] as const;
+export type TListenerEvents = typeof ListenerEvents[number];
+
+export type TListenerCallback = (data:{channel: string}) => void;
+
 export type TPermissions = 'public' | 'protected' | 'private';
 
 export type TMessage<T> = {
@@ -122,8 +127,16 @@ abstract class Core {
 	private onMessage(e: any): void {
 		if (this.isJsonString(e.data)) {
 			const json = JSON.parse(e.data);
-			
+			this.emitListener(json.channel, json.message);
 			this.events.emit(json.channel + ':' + json.event, json.message);
+		}
+	}
+
+	private emitListener(method: TListenerEvents, channel: string): void {
+		if (ListenerEvents.includes(method)) {
+			this.events.emit(method + ':' + channel, {
+				channel
+			});
 		}
 	}
 

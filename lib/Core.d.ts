@@ -1,4 +1,6 @@
 import { Events } from "easy-event-emitter";
+export declare const SocketEvents: readonly ["open", "close", "error"];
+export type TSocketEvents = typeof SocketEvents[number];
 export declare const ListenerEvents: readonly ["subscribe", "unsubscribe"];
 export type TListenerEvents = typeof ListenerEvents[number];
 export type TListenerCallback = (data: {

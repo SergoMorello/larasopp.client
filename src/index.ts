@@ -1,6 +1,12 @@
+import {
+	Event
+} from "easy-event-emitter";
 import Core,{
 	IConfig,
-	TPermissions
+	TPermissions,
+	SocketEvents,
+	TSocketEvents,
+	TListenerCallback
 } from "./Core";
 import Subscribe from "./Subscribe";
 
@@ -30,6 +36,15 @@ class Larasopp extends Core {
 			type: permission
 		});
 	}
+
+	public addListener(event: TSocketEvents, callback: TListenerCallback): Event | undefined {
+		if (!SocketEvents.includes(event)) return;
+		return this.events.addListener(event, callback);
+	}
 }
+
+export type {
+	Subscribe
+};
 
 export default Larasopp;

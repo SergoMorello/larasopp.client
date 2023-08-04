@@ -2,6 +2,9 @@ import EventEmitter,{
 	Events
 } from "easy-event-emitter";
 
+export const SocketEvents = ['open', 'close', 'error'] as const;
+export type TSocketEvents = typeof SocketEvents[number];
+
 export const ListenerEvents = ['subscribe', 'unsubscribe'] as const;
 export type TListenerEvents = typeof ListenerEvents[number];
 
@@ -145,9 +148,7 @@ abstract class Core {
 	}
 
 	protected send<T>(message: TMessage<T>) {
-		if (!this.status) {
-			return;
-		}
+		if (!this.status) return;
 		this.ws!.send(JSON.stringify(message));
 	}
 }

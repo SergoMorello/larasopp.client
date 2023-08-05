@@ -15,6 +15,9 @@ type TReturn = {
 
 interface ISubscribe {
 	events: Events;
+	hasChannel: (channel: string) => boolean;
+	pushChannel: (channel: string) => void;
+	removeChannel: (channel: string) => void;
 	send: <T>(message: TMessage<T>) => void;
 	channel: string;
 	status: boolean;
@@ -22,12 +25,18 @@ interface ISubscribe {
 
 class Subscribe {
 	private events: Events;
+	private hasChannel: (channel: string) => boolean;
+	private pushChannel: (channel: string) => void;
+	private removeChannel: (channel: string) => void;
 	private status: boolean;
 	private _channel: string;
 	private send: <T>(message: TMessage<T>) => void;
 
-	constructor({events, status, channel, send}: ISubscribe) {
+	constructor({events, hasChannel, pushChannel, removeChannel, status, channel, send}: ISubscribe) {
 		this.events = events;
+		this.hasChannel = hasChannel;
+		this.pushChannel = pushChannel;
+		this.removeChannel = removeChannel;
 		this.status = status;
 		this._channel = channel;
 		this.send = send;
@@ -40,6 +49,8 @@ class Subscribe {
 	}
 
 	private init(): void {
+		this.pushChannel(this.channel);
+
 		if (this.status) {
 			this.send({
 				subscribe: this.channel
@@ -58,15 +69,15 @@ class Subscribe {
 		const Event = this.events.addListener(this.channel + ':' + event, callback);
 		return {
 			remove: () => {
-				this.send({
-					unsubscribe: this.channel
-				});
+				this.remove();
 				Event.remove();
 			}
 		}
 	}
 
 	public remove(): void {
+		this.removeChannel(this.channel);
+		if (this.hasChannel(this.channel)) return;
 		this.send({
 			unsubscribe: this.channel
 		});

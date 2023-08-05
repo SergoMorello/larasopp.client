@@ -50,7 +50,6 @@ abstract class Core {
 		this.onClose = this.onClose.bind(this);
 		this.onError = this.onError.bind(this);
 		this.onMessage = this.onMessage.bind(this);
-		
 	}
 
 	public setConfig(config: IConfig): void {
@@ -136,7 +135,7 @@ abstract class Core {
 	}
 
 	private emitListener(method: TListenerEvents, channel: string): void {
-		if (ListenerEvents.includes(method)) {
+		if (ListenerEvents.includes(method)) {	
 			this.events.emit(method + ':' + channel, {
 				channel
 			});

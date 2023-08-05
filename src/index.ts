@@ -6,7 +6,8 @@ import Core,{
 	TPermissions,
 	SocketEvents,
 	TSocketEvents,
-	TListenerCallback
+	TListenerCallback,
+	TBind
 } from "./Core";
 import Subscribe from "./Subscribe";
 
@@ -76,7 +77,8 @@ class Larasopp extends Core {
 }
 
 export type {
-	Subscribe
+	Subscribe,
+	TBind
 };
 
 export default Larasopp;

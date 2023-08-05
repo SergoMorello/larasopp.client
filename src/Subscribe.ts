@@ -67,7 +67,6 @@ class Subscribe {
 		const Event = this.events.addListener(this.channel + ':' + event, callback);
 		return {
 			remove: () => {
-				this.remove();
 				Event.remove();
 			}
 		}

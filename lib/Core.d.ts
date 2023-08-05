@@ -7,6 +7,9 @@ export type TListenerCallback = (data: {
     channel: string;
 }) => void;
 export type TPermissions = 'public' | 'protected' | 'private';
+export type TBind = {
+    remove: () => void;
+};
 export type TMessage<T> = {
     subscribe?: string;
     unsubscribe?: string;

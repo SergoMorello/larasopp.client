@@ -1,8 +1,5 @@
-import { TMessage, TListenerEvents, TListenerCallback } from "./Core";
+import { TMessage, TListenerEvents, TListenerCallback, TBind } from "./Core";
 import { Event, Events } from "easy-event-emitter";
-type TReturn = {
-    remove: () => void;
-};
 interface ISubscribe {
     events: Events;
     hasChannel: (channel: string) => boolean;
@@ -23,7 +20,7 @@ declare class Subscribe {
     constructor({ events, hasChannel, pushChannel, removeChannel, status, channel, send }: ISubscribe);
     get channel(): string;
     private init;
-    bind<T>(event: string, callback: (data: T) => void): TReturn;
+    bind<T>(event: string, callback: (data: T) => void): TBind;
     remove(): void;
     addListener(event: TListenerEvents, callback: TListenerCallback): Event | undefined;
 }

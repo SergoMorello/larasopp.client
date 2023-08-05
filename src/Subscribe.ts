@@ -2,16 +2,14 @@ import {
 	TMessage,
 	ListenerEvents,
 	TListenerEvents,
-	TListenerCallback
+	TListenerCallback,
+	TBind
 } from "./Core";
 import {
 	Event,
 	Events
 } from "easy-event-emitter";
 
-type TReturn = {
-	remove: () => void;
-}
 
 interface ISubscribe {
 	events: Events;
@@ -65,7 +63,7 @@ class Subscribe {
 		}
 	}
 
-	public bind<T>(event: string, callback: (data: T) => void): TReturn {
+	public bind<T>(event: string, callback: (data: T) => void): TBind {
 		const Event = this.events.addListener(this.channel + ':' + event, callback);
 		return {
 			remove: () => {

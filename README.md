@@ -1,5 +1,14 @@
 # Laravel websocket client
 
+#### Server
+```
+https://github.com/SergoMorello/larasopp.server
+```
+#### Laravel package
+```
+composer require larasopp/larasopp
+```
+
 ### Connect app to websocket
 ```js
 ...

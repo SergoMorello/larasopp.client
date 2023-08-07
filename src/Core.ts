@@ -104,6 +104,7 @@ abstract class Core {
 	public disconnect(): void {
 		if (this.status) {
 			this.ws?.close();
+			this._status = false;
 		}
 	}
 

@@ -11,6 +11,7 @@ interface ISubscribe {
 }
 declare class Subscribe {
     private events;
+    private currentEvents;
     private hasChannel;
     private pushChannel;
     private removeChannel;
@@ -21,6 +22,7 @@ declare class Subscribe {
     get channel(): string;
     private init;
     bind<T>(event: string, callback: (data: T) => void): TBind;
+    private clearEvents;
     remove(): void;
     addListener(event: TListenerEvents, callback: TListenerCallback): Event | undefined;
 }

@@ -23,6 +23,7 @@ interface ISubscribe {
 
 class Subscribe {
 	private events: Events;
+	private currentEvents: Event[];
 	private hasChannel: (channel: string) => boolean;
 	private pushChannel: (channel: string) => void;
 	private removeChannel: (channel: string) => void;
@@ -32,6 +33,7 @@ class Subscribe {
 
 	constructor({events, hasChannel, pushChannel, removeChannel, status, channel, send}: ISubscribe) {
 		this.events = events;
+		this.currentEvents = [];
 		this.hasChannel = hasChannel;
 		this.pushChannel = pushChannel;
 		this.removeChannel = removeChannel;
@@ -65,6 +67,7 @@ class Subscribe {
 
 	public bind<T>(event: string, callback: (data: T) => void): TBind {
 		const Event = this.events.addListener(this.channel + ':' + event, callback);
+		this.currentEvents.push(Event);
 		return {
 			remove: () => {
 				Event.remove();
@@ -72,7 +75,12 @@ class Subscribe {
 		}
 	}
 
+	private clearEvents(): void {
+		this.currentEvents.forEach((event) => event.remove());
+	}
+
 	public remove(): void {
+		this.clearEvents();
 		this.removeChannel(this.channel);
 		if (this.hasChannel(this.channel)) return;
 		this.send({

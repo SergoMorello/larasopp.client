@@ -82,7 +82,7 @@ abstract class Core {
 		}
 
 		try {
-			this.ws = new WebSocket(this.config.tls ? 'wss' : 'ws' + '://' + this.config.host + '/token=' + this.config.token);
+			this.ws = new WebSocket((this.config.tls ? 'wss' : 'ws') + '://' + this.config.host + '/token=' + this.config.token);
 		}catch(e) {
 			console.warn(e);
 			this.onError('Socket exception');

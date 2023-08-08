@@ -33,7 +33,7 @@ export interface IConfig {
 
 abstract class Core {
 	protected events: Events;
-	private ws?: WebSocket;
+	private ws?: WebSocket | null;
 	protected _status: boolean;
 	private config: IConfig;
 
@@ -106,6 +106,7 @@ abstract class Core {
 			this.ws?.close();
 			this._status = false;
 		}
+		this.ws = null;
 	}
 
 	protected isJsonString(str: string) {

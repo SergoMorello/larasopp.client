@@ -39,7 +39,7 @@ export type TChannels = {
 
 abstract class Core {
 	public readonly events: Events;
-	private ws?: WebSocket | null;
+	private ws?: WebSocket;
 	protected _status: boolean;
 	private _socketId?: string;
 	private config: IConfig;
@@ -115,7 +115,7 @@ abstract class Core {
 			this.ws?.close();
 			this._status = false;
 		}
-		this.ws = null;
+		this.ws = undefined;
 	}
 
 	protected isJson(str: string) {

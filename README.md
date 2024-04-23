@@ -10,6 +10,7 @@ composer require larasopp/larasopp
 ```
 
 ### Connect app to websocket
+
 ```js
 ...
 import Larasopp from "Larasopp";
@@ -21,17 +22,22 @@ const larasopp = new Larasopp({
 
 larasopp.connect();
 
-export default larasopp;
-
 ```
 
-### Subscribe on channel and bind event
+### Update user token
+
 ```js
-const listener = larasopp.subscribe('chat').bind('message',(data) => {
+larasopp.setToken('new token');
+```
+
+### Subscribe on channel and listen event
+
+```js
+const listener = larasopp.subscribe('chat').listen('message',(data) => {
 	console.log(data.text); // Hello World
 });
 
-// Unsubscribe
+// Unsubscribe event
 listener.remove();
 ```
 
@@ -43,7 +49,14 @@ larasopp.trigger('chat','message',{
 },'public');
 ```
 
+### Unsubscribe channel
+
+```js
+larasopp.unsubscribe('chat');
+```
+
 ### Disconnect
+
 ```js
 larasopp.disconnect();
 ```

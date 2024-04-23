@@ -31,7 +31,6 @@ export type TChannels = {
 declare abstract class Core {
     readonly events: Events;
     private ws?;
-    protected _status: boolean;
     private _socketId?;
     private config;
     constructor(config: IConfig);

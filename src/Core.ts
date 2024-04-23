@@ -40,7 +40,6 @@ export type TChannels = {
 abstract class Core {
 	public readonly events: Events;
 	private ws?: WebSocket;
-	protected _status: boolean;
 	private _socketId?: string;
 	private config: IConfig;
 
@@ -51,7 +50,6 @@ abstract class Core {
 			tls: false,
 			...config,
 		};
-		this._status = false;
 		
 		this.handleOpen = this.handleOpen.bind(this);
 		this.handleClose = this.handleClose.bind(this);
@@ -107,7 +105,6 @@ abstract class Core {
 	public disconnect(): void {
 		if (this.status) {
 			this.ws?.close();
-			this._status = false;
 		}
 		this.ws = undefined;
 	}
@@ -122,12 +119,10 @@ abstract class Core {
 	}
 
 	private handleOpen(e: Event): void {
-		this._status = true;
 		this.events.emit("open", e);
 	}
 
 	private handleClose(e: CloseEvent): void {
-		this._status = false;
 		this.events.emit("close", e);
 	}
 
@@ -160,11 +155,12 @@ abstract class Core {
 	}
 
 	public get status(): boolean {
-		return this._status;
+		if (!this.ws) return false;
+		return this.ws?.readyState === this.ws?.OPEN;
 	}
 
 	private _send<T>(message: TMessage<T>) {
-		if (!this.ws) return;
+		if (!this.ws || !this.status) return;
 		this.ws.send(JSON.stringify(message));
 	}
 

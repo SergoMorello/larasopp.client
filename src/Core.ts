@@ -160,7 +160,6 @@ abstract class Core {
 	}
 
 	public get status(): boolean {
-		if (!this._status) this.connect();
 		return this._status;
 	}
 
@@ -173,6 +172,7 @@ abstract class Core {
 		if (this.status) {
 			this._send(message);
 		}else{
+			if (!this.ws?.CONNECTING) this.connect();
 			const event = this.events.addListener('open',() => {
 				this._send(message);
 				event.remove();

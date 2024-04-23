@@ -166,6 +166,7 @@ abstract class Core {
 	}
 
 	public get status(): boolean {
+		if (!this._status) this.connect();
 		return this._status;
 	}
 

@@ -19,6 +19,16 @@ class Larasopp extends Core {
 		super(config);
 		
 		this.channels = {};
+
+		this.listenResumeSubscribes();
+	}
+
+	private listenResumeSubscribes() {
+		this.addListener('open', () => {
+			Object.keys(this.channels).forEach((channel) => this.send({
+				subscribe: channel
+			}));
+		});
 	}
 
 	public subscribe(channel: string) {

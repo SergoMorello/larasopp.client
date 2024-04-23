@@ -4,6 +4,7 @@ import Listener from "./Listener";
 declare class Larasopp extends Core {
     private readonly channels;
     constructor(config: IConfig);
+    private listenResumeSubscribes;
     subscribe(channel: string): Listener;
     unsubscribe(channel: string): void;
     trigger<T>(channel: string, event: string, message: T, permission?: TPermissions, waitSubscribe?: boolean): void;

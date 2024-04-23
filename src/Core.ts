@@ -81,12 +81,6 @@ abstract class Core {
 	 * @returns {this}
 	 */
 	public connect(): this {
-
-		if (!navigator.onLine) {
-			setTimeout(this.connect.bind(this), 5000);
-			return this;
-		}
-
 		try {
 			const host = [(this.config.tls ? 'wss' : 'ws') + '://'];
 			host.push(this.config.host);

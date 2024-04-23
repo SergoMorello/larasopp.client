@@ -1,6 +1,7 @@
 import EventEmitter,{
-	Events
+	type Events
 } from "easy-event-emitter";
+import type Listener from "./Listener";
 
 export const SocketEvents = ['open', 'close', 'error'] as const;
 export type TSocketEvents = typeof SocketEvents[number];
@@ -12,7 +13,7 @@ export type TListenerCallback = (data:{channel: string}) => void;
 
 export type TPermissions = 'public' | 'protected' | 'private';
 
-export type TBind = {
+export type TListen = {
 	remove: () => void;
 }
 
@@ -21,6 +22,7 @@ export type TMessage<T> = {
 	unsubscribe?: string;
 	channel?: string;
 	event?: string;
+	token?: string;
 	message?: T;
 	type?: TPermissions;
 }
@@ -31,10 +33,15 @@ export interface IConfig {
 	tls?: boolean;
 }
 
+export type TChannels = {
+	[channel: string]: Listener[];
+};
+
 abstract class Core {
-	protected events: Events;
+	public readonly events: Events;
 	private ws?: WebSocket | null;
 	protected _status: boolean;
+	private _socketId?: string;
 	private config: IConfig;
 
 	constructor(config: IConfig) {
@@ -46,14 +53,10 @@ abstract class Core {
 		};
 		this._status = false;
 
-		this.send = this.send.bind(this);
-		this.setConfig = this.setConfig.bind(this);
-		this.setToken = this.setToken.bind(this);
-		this.connect = this.connect.bind(this);
-		this.onOpen = this.onOpen.bind(this);
-		this.onClose = this.onClose.bind(this);
-		this.onError = this.onError.bind(this);
-		this.onMessage = this.onMessage.bind(this);
+		this.handleOpen = this.handleOpen.bind(this);
+		this.handleClose = this.handleClose.bind(this);
+		this.handleError = this.handleError.bind(this);
+		this.handleMessage = this.handleMessage.bind(this);
 	}
 
 	public setConfig(config: IConfig): void {
@@ -68,6 +71,9 @@ abstract class Core {
 			...this.config,
 			token
 		};
+		this.send({
+			token
+		});
 	}
 
 	/**
@@ -82,17 +88,20 @@ abstract class Core {
 		}
 
 		try {
-			this.ws = new WebSocket((this.config.tls ? 'wss' : 'ws') + '://' + this.config.host + '/token=' + this.config.token);
+			const host = [(this.config.tls ? 'wss' : 'ws') + '://'];
+			host.push(this.config.host);
+			if (this.config.token) host.push('/token=' + this.config.token);
+
+			this.ws = new WebSocket(host.join(''));
+			this.ws.onopen = this.handleOpen;
+			this.ws.onclose = this.handleClose;
+			this.ws.onerror = this.handleError;
+			this.ws.onmessage = this.handleMessage;
 		}catch(e) {
 			console.warn(e);
-			this.onError('Socket exception');
-			this.onClose(e);
+			this.handleError(new Event('Socket exception'));
+			this.handleClose(new CloseEvent(String(e)));
 		}
-
-		this.ws!.onopen = this.onOpen;
-		this.ws!.onclose = this.onClose;
-		this.ws!.onerror = this.onError;
-		this.ws!.onmessage = this.onMessage;
 		
 		return this;
 	}
@@ -109,7 +118,7 @@ abstract class Core {
 		this.ws = null;
 	}
 
-	protected isJsonString(str: string) {
+	protected isJson(str: string) {
 		try {
 			JSON.parse(str);
 		} catch (e) {
@@ -118,23 +127,27 @@ abstract class Core {
 		return true;
 	}
 
-	private onOpen(e: any): void {
+	private handleOpen(e: Event): void {
 		this._status = true;
 		this.events.emit("open", e);
 	}
 
-	private onClose(e: any): void {
+	private handleClose(e: CloseEvent): void {
 		this._status = false;
 		this.events.emit("close", e);
 	}
 
-	private onError(e: any): void {
+	private handleError(e: Event): void {
 		this.events.emit("error", e);
 	}
 
-	private onMessage(e: any): void {
-		if (this.isJsonString(e.data)) {
+	private handleMessage(e: MessageEvent): void {
+		if (this.isJson(e.data)) {
 			const json = JSON.parse(e.data);
+			if (json.socket_id) {
+				this._socketId = json.socket_id;
+				return;
+			}
 			this.emitListener(json.channel, json.message);
 			this.events.emit(json.channel + ':' + json.event, json.message);
 		}
@@ -148,13 +161,28 @@ abstract class Core {
 		}
 	}
 
+	public get socketId() {
+		return this._socketId;
+	}
+
 	public get status(): boolean {
 		return this._status;
 	}
 
+	private _send<T>(message: TMessage<T>) {
+		if (!this.ws) return;
+		this.ws.send(JSON.stringify(message));
+	}
+
 	protected send<T>(message: TMessage<T>) {
-		if (!this.status) return;
-		this.ws!.send(JSON.stringify(message));
+		if (this.status) {
+			this._send(message);
+		}else{
+			const event = this.events.addListener('open',() => {
+				this._send(message);
+				event.remove();
+			});
+		}
 	}
 }
 

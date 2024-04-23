@@ -1,16 +1,14 @@
 import { Event } from "easy-event-emitter";
-import Core, { IConfig, TPermissions, TSocketEvents, TListenerCallback, TBind } from "./Core";
-import Subscribe from "./Subscribe";
+import Core, { type IConfig, type TPermissions, type TSocketEvents, type TListenerCallback, type TListen } from "./Core";
+import Listener from "./Listener";
 declare class Larasopp extends Core {
-    private _channels;
+    private readonly channels;
     constructor(config: IConfig);
-    subscribe(channel: string): Subscribe;
+    subscribe(channel: string): Listener;
+    unsubscribe(channel: string): void;
     trigger<T>(channel: string, event: string, message: T, permission?: TPermissions, waitSubscribe?: boolean): void;
-    private pushChannel;
-    private removeChannel;
-    private get channels();
-    hasChannel(channel: string): boolean;
+    private pushListener;
     addListener(event: TSocketEvents, callback: TListenerCallback): Event | undefined;
 }
-export type { Subscribe, TBind };
+export type { TListen };
 export default Larasopp;

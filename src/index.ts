@@ -2,39 +2,37 @@ import {
 	Event
 } from "easy-event-emitter";
 import Core,{
-	IConfig,
-	TPermissions,
+	type IConfig,
+	type TPermissions,
 	SocketEvents,
-	TSocketEvents,
-	TListenerCallback,
-	TBind
+	type TSocketEvents,
+	type TListenerCallback,
+	type TListen,
+	type TChannels
 } from "./Core";
-import Subscribe from "./Subscribe";
+import Listener from "./Listener";
 
 class Larasopp extends Core {
-	private _channels: string[];
+	private readonly channels: TChannels;
 
 	constructor(config: IConfig) {
 		super(config);
 		
-		this._channels = [];
-
-		this.subscribe = this.subscribe.bind(this);
-		this.trigger = this.trigger.bind(this);
-		this.hasChannel = this.hasChannel.bind(this);
-		this.pushChannel = this.pushChannel.bind(this);
-		this.removeChannel = this.removeChannel.bind(this);
+		this.channels = {};
 	}
 
-	public subscribe(channel: string): Subscribe {
-		return new Subscribe({
-			events: this.events,
-			hasChannel: this.hasChannel,
-			pushChannel: this.pushChannel,
-			removeChannel: this.removeChannel,
-			status: this.status,
-			send: this.send,
-			channel
+	public subscribe(channel: string) {
+		const listener = new Listener(channel, this);
+		this.pushListener(channel, listener);
+		return listener;
+	}
+
+	public unsubscribe(channel: string) {
+		if (!this.channels[channel]) return;
+		this.channels[channel].forEach((listener) => listener.remove());
+		delete this.channels[channel];
+		this.send({
+			unsubscribe: channel
 		});
 	}
 
@@ -52,22 +50,14 @@ class Larasopp extends Core {
 		send();
 	}
 
-	private pushChannel(channel: string): void {
-		if (this._channels.indexOf(channel) >= 0) return;
-		this._channels.push(channel);
-	}
-
-	private removeChannel(channel: string): void {
-		const index = this._channels.indexOf(channel);
-		if (index >= 0) this._channels.splice(index, 1);
-	}
-
-	private get channels(): string[] {
-		return this._channels;
-	}
-
-	public hasChannel(channel: string): boolean {
-		return this.channels.indexOf(channel) >= 0;
+	private pushListener(channel: string, listener: Listener): void {
+		if (!this.channels[channel]) {
+			this.channels[channel] = [];
+		}
+		this.send({
+			subscribe: channel
+		});
+		this.channels[channel].push(listener);
 	}
 
 	public addListener(event: TSocketEvents, callback: TListenerCallback): Event | undefined {
@@ -77,8 +67,7 @@ class Larasopp extends Core {
 }
 
 export type {
-	Subscribe,
-	TBind
+	TListen
 };
 
 export default Larasopp;

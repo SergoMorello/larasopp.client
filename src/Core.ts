@@ -172,7 +172,7 @@ abstract class Core {
 		if (this.status) {
 			this._send(message);
 		}else{
-			if (!this.ws?.CONNECTING) this.connect();
+			if (this.ws?.readyState !== this.ws?.CONNECTING) this.connect();
 			const event = this.events.addListener('open',() => {
 				this._send(message);
 				event.remove();

@@ -52,7 +52,7 @@ abstract class Core {
 			...config,
 		};
 		this._status = false;
-
+		
 		this.handleOpen = this.handleOpen.bind(this);
 		this.handleClose = this.handleClose.bind(this);
 		this.handleError = this.handleError.bind(this);

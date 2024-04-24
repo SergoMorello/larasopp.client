@@ -27,10 +27,16 @@ export type TMessage<T> = {
 	type?: TPermissions;
 }
 
+export type TConfigDataReviver = {
+	[index: string]: (value: any) => any;
+};
+
 export interface IConfig {
 	host: string;
 	token?: string;
 	tls?: boolean;
+	reviver?: (this: any, key: string, value: any) => any;
+	dataReviver?: TConfigDataReviver;
 }
 
 export type TChannels = {
@@ -130,9 +136,32 @@ abstract class Core {
 		this.events.emit("error", e);
 	}
 
+	private jsonParse(str: string) {
+		if (this.config) {
+			if (typeof this.config.reviver === 'function') {
+				return JSON.parse(str, this.config.reviver);
+			}
+	
+			if (this.config.dataReviver) {
+				const replace = this.config.dataReviver;
+				return JSON.parse(str, (key, value) => {
+					if (key === "createdAt" || key === "updatedAt") {
+						return new Date(value);
+					}
+					if (key in replace && typeof replace[key] === 'function') {
+						return replace[key](value);
+					}
+					return value;
+				});
+			}
+		}
+		
+		return JSON.parse(str);
+	}
+
 	private handleMessage(e: MessageEvent): void {
 		if (this.isJson(e.data)) {
-			const json = JSON.parse(e.data);
+			const json = this.jsonParse(e.data);
 			if (json.socket_id) {
 				this._socketId = json.socket_id;
 				return;

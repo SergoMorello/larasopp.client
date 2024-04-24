@@ -20,10 +20,15 @@ export type TMessage<T> = {
     message?: T;
     type?: TPermissions;
 };
+export type TConfigDataReviver = {
+    [index: string]: (value: any) => any;
+};
 export interface IConfig {
     host: string;
     token?: string;
     tls?: boolean;
+    reviver?: (this: any, key: string, value: any) => any;
+    dataReviver?: TConfigDataReviver;
 }
 export type TChannels = {
     [channel: string]: Listener[];
@@ -50,6 +55,7 @@ declare abstract class Core {
     private handleOpen;
     private handleClose;
     private handleError;
+    private jsonParse;
     private handleMessage;
     private emitListener;
     get socketId(): string | undefined;

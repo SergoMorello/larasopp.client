@@ -79,10 +79,8 @@ abstract class Core {
 	 */
 	public connect(token?: string): this {
 		try {
-			const host = [this.config.host];
-			if (this.config.token) host.push('/token=' + (token ?? this.config.token));
-
-			this.ws = new WebSocket(host.join(''));
+			const host = this.config.host + '/token=' + (token ?? this.config.token);
+			this.ws = new WebSocket(encodeURI(host));
 			this.ws.onopen = this.handleOpen;
 			this.ws.onclose = this.handleClose;
 			this.ws.onerror = this.handleError;

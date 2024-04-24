@@ -78,6 +78,7 @@ abstract class Core {
 	 * @returns {this}
 	 */
 	public connect(token?: string): this {
+		if (this.status) return this;
 		try {
 			const host = this.config.host + '/token=' + (token ?? this.config.token);
 			this.ws = new WebSocket(encodeURI(host));

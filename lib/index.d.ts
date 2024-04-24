@@ -1,6 +1,7 @@
 import { Event } from "easy-event-emitter";
-import Core, { type IConfig, type TPermissions, type TSocketEvents, type TListenerCallback, type TListen } from "./Core";
+import Core from "./Core";
 import Listener from "./Listener";
+import type { IConfig, TPermissions, TSocketEvents, TListenerCallback, TListen } from "./types";
 declare class Larasopp extends Core {
     private readonly channels;
     constructor(config: IConfig);

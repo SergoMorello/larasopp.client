@@ -1,56 +1,23 @@
 import EventEmitter,{
 	type Events
 } from "easy-event-emitter";
-import type Listener from "./Listener";
-
-export const SocketEvents = ['open', 'close', 'error'] as const;
-export type TSocketEvents = typeof SocketEvents[number];
-
-export const ListenerEvents = ['subscribe', 'unsubscribe'] as const;
-export type TListenerEvents = typeof ListenerEvents[number];
-
-export type TListenerCallback = (data:{channel: string}) => void;
-
-export type TPermissions = 'public' | 'protected' | 'private';
-
-export type TListen = {
-	remove: () => void;
-}
-
-export type TMessage<T> = {
-	subscribe?: string;
-	unsubscribe?: string;
-	channel?: string;
-	event?: string;
-	token?: string;
-	message?: T;
-	type?: TPermissions;
-}
-
-export type TConfigDataReviver = {
-	[index: string]: (value: any) => any;
-};
-
-export interface IConfig {
-	host: string;
-	token?: string;
-	reviver?: (this: any, key: string, value: any) => any;
-	dataReviver?: TConfigDataReviver;
-}
-
-export type TChannels = {
-	[channel: string]: Listener[];
-};
+import { ListenerEvents } from "./constants";
+import type {
+	IConfig,
+	TListenerEvents,
+	TMessage
+} from "./types";
 
 abstract class Core {
 	public readonly events: Events;
 	private ws?: WebSocket;
 	private _socketId?: string;
 	private config: IConfig;
+	private reconnectCount: number;
 
 	constructor(config: IConfig) {
 		this.events = new EventEmitter;
-
+		this.reconnectCount = 0;
 		this.config = config;
 		
 		this.handleOpen = this.handleOpen.bind(this);
@@ -115,12 +82,27 @@ abstract class Core {
 		return true;
 	}
 
+	private tryReconnect() {
+		if (
+			typeof this.config.reconnect === 'undefined' ||
+			this.reconnectCount >= this.config.reconnect ||
+			typeof this.ws === 'undefined' ||
+			this.status ||
+			this.ws?.readyState === this.ws.CONNECTING
+		) return;
+		
+		++this.reconnectCount;
+		this.connect();
+		setTimeout(() => this.tryReconnect(), this.config.reconnectDelay ?? 1000);
+	}
+
 	private handleOpen(e: Event): void {
 		this.events.emit("open", e);
 	}
 
 	private handleClose(e: CloseEvent): void {
 		this.events.emit("close", e);
+		this.tryReconnect();
 	}
 
 	private handleError(e: Event): void {

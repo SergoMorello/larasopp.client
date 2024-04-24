@@ -26,7 +26,6 @@ export type TConfigDataReviver = {
 export interface IConfig {
     host: string;
     token?: string;
-    tls?: boolean;
     reviver?: (this: any, key: string, value: any) => any;
     dataReviver?: TConfigDataReviver;
 }
@@ -45,7 +44,7 @@ declare abstract class Core {
      * Connect to websocket
      * @returns {this}
      */
-    connect(): this;
+    connect(token?: string): this;
     /**
      * Disconnect
      * @returns {void}

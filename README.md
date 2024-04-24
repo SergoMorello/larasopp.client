@@ -16,11 +16,13 @@ composer require larasopp/larasopp
 import Larasopp from "Larasopp";
 
 const larasopp = new Larasopp({
-	host: '127.0.0.1:9002',
+	host: 'ws://127.0.0.1:3001',
 	token: 'token'
 });
 
 larasopp.connect();
+//or
+larasopp.connect('token');
 
 ```
 

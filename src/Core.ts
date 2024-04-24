@@ -34,7 +34,6 @@ export type TConfigDataReviver = {
 export interface IConfig {
 	host: string;
 	token?: string;
-	tls?: boolean;
 	reviver?: (this: any, key: string, value: any) => any;
 	dataReviver?: TConfigDataReviver;
 }
@@ -52,10 +51,7 @@ abstract class Core {
 	constructor(config: IConfig) {
 		this.events = new EventEmitter;
 
-		this.config = {
-			tls: false,
-			...config,
-		};
+		this.config = config;
 		
 		this.handleOpen = this.handleOpen.bind(this);
 		this.handleClose = this.handleClose.bind(this);
@@ -64,10 +60,7 @@ abstract class Core {
 	}
 
 	public setConfig(config: IConfig): void {
-		this.config = {
-			tls: false,
-			...config,
-		};
+		this.config = config;
 	}
 
 	public setToken(token: string): void {
@@ -84,11 +77,10 @@ abstract class Core {
 	 * Connect to websocket
 	 * @returns {this}
 	 */
-	public connect(): this {
+	public connect(token?: string): this {
 		try {
-			const host = [(this.config.tls ? 'wss' : 'ws') + '://'];
-			host.push(this.config.host);
-			if (this.config.token) host.push('/token=' + this.config.token);
+			const host = [this.config.host];
+			if (this.config.token) host.push('/token=' + (token ?? this.config.token));
 
 			this.ws = new WebSocket(host.join(''));
 			this.ws.onopen = this.handleOpen;

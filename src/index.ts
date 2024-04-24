@@ -1,5 +1,5 @@
 import {
-	Event
+	type Event as EventListener
 } from "easy-event-emitter";
 import Core from "./Core";
 import { SocketEvents } from "./constants";
@@ -9,7 +9,6 @@ import type {
 	TPermissions,
 	TSocketEvents,
 	TListenerCallback,
-	TListen,
 	TChannels
 } from "./types";
 
@@ -64,21 +63,27 @@ class Larasopp extends Core {
 	private pushListener(channel: string, listener: Listener): void {
 		if (!this.channels[channel]) {
 			this.channels[channel] = [];
+			this.send({
+				subscribe: channel
+			});
 		}
-		this.send({
-			subscribe: channel
-		});
 		this.channels[channel].push(listener);
 	}
 
-	public addListener(event: TSocketEvents, callback: TListenerCallback): Event | undefined {
+	public countListeners(channel: string) {
+		if (!this.channels[channel]) return -1;
+		return this.channels[channel].length;
+	}
+
+	public addListener(event: TSocketEvents, callback: TListenerCallback): EventListener | undefined {
 		if (!SocketEvents.includes(event)) return;
 		return this.events.addListener(event, callback);
 	}
 }
 
 export type {
-	TListen
+	Listener,
+	EventListener
 };
 
 export default Larasopp;

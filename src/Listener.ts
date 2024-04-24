@@ -1,12 +1,12 @@
 import {
-	type Event
+	type Event as EventListener
 } from "easy-event-emitter";
 import type Larasopp from ".";
 
 class Listener {
 	private readonly context: Larasopp;
 	private channel: string;
-	private listeners?: Event[];
+	private listeners?: EventListener[];
 
 	constructor(channel: string, constext: Larasopp) {
 		this.channel = channel;
@@ -20,6 +20,11 @@ class Listener {
 		const listener = this.context.events.addListener(this.channel + ':' + event, callback);
 		this.listeners.push(listener);
 		return listener;
+	}
+
+	public unsubscribe() {
+		this.context.unsubscribe(this.channel);
+		this.remove();
 	}
 
 	public remove() {

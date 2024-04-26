@@ -1,6 +1,6 @@
 {
   "name": "larasopp",
-  "version": "1.2.13",
+  "version": "1.2.14",
   "description": "Websocket client for laravel",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

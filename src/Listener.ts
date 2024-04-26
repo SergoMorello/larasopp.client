@@ -3,10 +3,11 @@ import {
 } from "easy-event-emitter";
 import type Larasopp from ".";
 
-class Listener {
+class Listener implements EventListener {
 	private readonly context: Larasopp;
 	private channel: string;
 	private listeners?: EventListener[];
+	private listener?: EventListener;
 
 	constructor(channel: string, constext: Larasopp) {
 		this.channel = channel;
@@ -19,7 +20,7 @@ class Listener {
 		}
 		const listener = this.context.events.addListener(this.channel + ':' + event, callback);
 		this.listeners.push(listener);
-		return listener;
+		return this;
 	}
 
 	public here(callback: (data: any) => void) {
@@ -43,6 +44,8 @@ class Listener {
 		if (!this.listeners) return;
 		this.listeners.forEach((listener) => listener.remove());
 	}
+
+	public emit(data: any): void {}
 }
 
 export default Listener;

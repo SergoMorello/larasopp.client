@@ -29,8 +29,8 @@ class Listener implements EventListener {
 		
 		if (withCache && this.hasCache(event)) callback(this.getCache(event));
 		const listener = this.context.events.addListener(this.channel + ':' + event, (data) => {
-			const result = callback(data);
-			if (withCache) this.pushCache(event, result);
+			callback(data);
+			if (withCache) this.pushCache(event, data);
 		});
 		this.listeners.push(listener);
 		return this;

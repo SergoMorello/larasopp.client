@@ -5,13 +5,17 @@ declare class Listener implements EventListener {
     private channel;
     private listeners?;
     private listener?;
+    private cacheEvents;
     constructor(channel: string, constext: Larasopp);
-    listen(event: string, callback: (data: any) => void): this;
-    here(callback: (data: any) => void): this;
-    joining(callback: (data: any) => void): this;
-    leaving(callback: (data: any) => void): this;
+    listen(event: string, callback: (data: any) => void, withCache?: boolean): this;
+    here(callback: (data: any) => void, withCache?: boolean): this;
+    joining(callback: (data: any) => void, withCache?: boolean): this;
+    leaving(callback: (data: any) => void, withCache?: boolean): this;
     unsubscribe(): void;
     remove(): void;
+    private hasCache;
+    private getCache;
+    private pushCache;
     emit(data: any): void;
 }
 export default Listener;

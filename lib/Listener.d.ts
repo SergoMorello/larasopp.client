@@ -6,6 +6,9 @@ declare class Listener {
     private listeners?;
     constructor(channel: string, constext: Larasopp);
     listen(event: string, callback: (data: any) => void): EventListener;
+    here(callback: (data: any) => void): EventListener;
+    joining(callback: (data: any) => void): EventListener;
+    leaving(callback: (data: any) => void): EventListener;
     unsubscribe(): void;
     remove(): void;
 }

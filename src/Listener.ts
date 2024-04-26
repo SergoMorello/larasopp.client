@@ -22,6 +22,18 @@ class Listener {
 		return listener;
 	}
 
+	public here(callback: (data: any) => void) {
+		return this.listen('__HERE', callback);
+	}
+
+	public joining(callback: (data: any) => void) {
+		return this.listen('__JOIN', callback);
+	}
+
+	public leaving(callback: (data: any) => void) {
+		return this.listen('__LEAVE', callback);
+	}
+
 	public unsubscribe() {
 		this.context.unsubscribe(this.channel);
 		this.remove();

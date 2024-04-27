@@ -7,8 +7,8 @@ declare abstract class Core {
     private config;
     private reconnectCount;
     constructor(config: IConfig);
-    setConfig(config: IConfig): void;
-    setToken(token: string): void;
+    setConfig(config: IConfig): this;
+    setToken(token: string): this;
     /**
      * Connect to websocket
      * @returns {this}

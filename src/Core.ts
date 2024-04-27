@@ -26,18 +26,22 @@ abstract class Core {
 		this.handleMessage = this.handleMessage.bind(this);
 	}
 
-	public setConfig(config: IConfig): void {
+	public setConfig(config: IConfig) {
 		this.config = config;
+		return this;
 	}
 
-	public setToken(token: string): void {
+	public setToken(token: string) {
 		this.config = {
 			...this.config,
 			token
 		};
-		this.send({
-			token
-		});
+		if (this.status) {
+			this.send({
+				token
+			});
+		}
+		return this;
 	}
 
 	/**
@@ -47,7 +51,8 @@ abstract class Core {
 	public connect(token?: string): this {
 		if (this.status) return this;
 		try {
-			const host = this.config.host + '/token=' + (token ?? this.config.token);
+			if (token) this.setToken(token);
+			const host = this.config.host + '/token=' + this.config.token;
 			this.ws = new WebSocket(encodeURI(host));
 			this.ws.onopen = this.handleOpen;
 			this.ws.onclose = this.handleClose;

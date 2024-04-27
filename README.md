@@ -2,7 +2,7 @@
 
 #### Server
 ```
-https://github.com/SergoMorello/larasopp.server
+https://www.npmjs.com/package/larasopp-server
 ```
 #### Laravel package
 ```

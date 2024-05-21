@@ -1,6 +1,4 @@
-import EventEmitter,{
-	type Events
-} from "easy-event-emitter";
+import EventEmitter from "easy-event-emitter";
 import { ListenerEvents } from "./constants";
 import type {
 	IConfig,
@@ -9,7 +7,7 @@ import type {
 } from "./types";
 
 abstract class Core {
-	public readonly events: Events;
+	public readonly events: EventEmitter;
 	private ws?: WebSocket;
 	private _socketId?: string;
 	private config: IConfig;

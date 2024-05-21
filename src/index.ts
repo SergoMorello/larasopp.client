@@ -1,5 +1,5 @@
 import {
-	type Event as EventListener
+	type EventListener
 } from "easy-event-emitter";
 import Core from "./Core";
 import { SocketEvents } from "./constants";

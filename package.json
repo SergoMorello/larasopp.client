@@ -37,6 +37,6 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
-    "easy-event-emitter": "^1.0.7"
+    "easy-event-emitter": "^1.1.2"
   }
 }

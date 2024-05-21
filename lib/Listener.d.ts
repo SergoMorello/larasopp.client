@@ -1,6 +1,6 @@
-import { type Event as EventListener } from "easy-event-emitter";
+import { type EventListener } from "easy-event-emitter";
 import type Larasopp from ".";
-declare class Listener implements EventListener {
+declare class Listener implements Omit<EventListener, 'name' | 'hasHandler' | 'onEmit' | 'onRemove'> {
     private readonly context;
     private channel;
     private listeners?;

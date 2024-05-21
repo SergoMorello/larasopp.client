@@ -1,7 +1,7 @@
-import { type Events } from "easy-event-emitter";
+import EventEmitter from "easy-event-emitter";
 import type { IConfig, TMessage } from "./types";
 declare abstract class Core {
-    readonly events: Events;
+    readonly events: EventEmitter;
     private ws?;
     private _socketId?;
     private config;

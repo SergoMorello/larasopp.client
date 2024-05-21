@@ -1,4 +1,4 @@
-import { type Event as EventListener } from "easy-event-emitter";
+import { type EventListener } from "easy-event-emitter";
 import Core from "./Core";
 import Listener from "./Listener";
 import type { IConfig, TPermissions, TSocketEvents, TListenerCallback } from "./types";

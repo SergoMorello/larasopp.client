@@ -1,5 +1,5 @@
 import {
-	type Event as EventListener
+	type EventListener
 } from "easy-event-emitter";
 import type Larasopp from ".";
 
@@ -7,7 +7,7 @@ type TListenerCacheEvents = {
 	[event: string]: unknown;
 };
 
-class Listener implements EventListener {
+class Listener implements Omit<EventListener, 'name' | 'hasHandler' | 'onEmit' | 'onRemove'> {
 	private readonly context: Larasopp;
 	private channel: string;
 	private listeners?: EventListener[];

@@ -7,7 +7,7 @@ type TListenerCacheEvents = {
 	[event: string]: unknown;
 };
 
-class Listener implements Omit<EventListener, 'name' | 'hasHandler' | 'onEmit' | 'onRemove'> {
+class Listener implements Omit<EventListener, 'events'> {
 	private readonly context: Larasopp;
 	private channel: string;
 	private listeners?: EventListener[];
@@ -20,6 +20,39 @@ class Listener implements Omit<EventListener, 'name' | 'hasHandler' | 'onEmit' |
 		this.cacheEvents = {};
 
 		this.here(()=>{}, true);
+	}
+
+	public get name() {
+		return '__ws-event';
+	}
+
+	public pushListener(object: EventListener<any, string | number | symbol, any>): void {}
+
+	public hasHandler(handler: (data: any) => void) {
+		if (this.listeners) {
+			for (const listener of this.listeners) {
+				if (listener.hasHandler(handler)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public onEmit(handlerEmit: () => void) {
+		if (this.listeners) {
+			for (const listener of this.listeners) {
+				listener.onEmit(handlerEmit);
+			}
+		}
+	}
+
+	public onRemove(handlerRemove: () => void) {
+		if (this.listeners) {
+			for (const listener of this.listeners) {
+				listener.onRemove(handlerRemove);
+			}
+		}
 	}
 
 	public listen(event: string, callback: (data: any) => void, withCache = false) {

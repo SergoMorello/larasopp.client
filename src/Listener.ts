@@ -30,7 +30,7 @@ class Listener extends EventEmmiter.Stack {
 			if (withCache) this.pushCache(event, data);
 		});
 
-		this.pushListener(listener);
+		this.push(listener);
 		return this;
 	}
 

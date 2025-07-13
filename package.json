@@ -6,13 +6,17 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "test": "jest",
-    "build": "tsc"
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
   },
   "jest": {
     "transform": {
       "^.+\\.[t|j]sx?$": "babel-jest"
     }
   },
+  "files": [
+    "lib"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SergoMorello/larasopp.client.git"
@@ -37,6 +41,6 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
-    "easy-event-emitter": "^1.1.5"
+    "easy-event-emitter": "^1.2.2"
   }
 }

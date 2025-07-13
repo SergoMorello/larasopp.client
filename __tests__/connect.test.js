@@ -1,5 +1,6 @@
 import Larasopp from "../src";
 
-test('Connect', () => {
+test('Connect', (done) => {
 	// todo
+	done();
 });

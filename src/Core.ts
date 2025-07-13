@@ -12,6 +12,7 @@ abstract class Core {
 	private _socketId?: string;
 	private config: IConfig;
 	private reconnectCount: number;
+	private reconnectTimer?: NodeJS.Timeout;
 
 	constructor(config: IConfig) {
 		this.events = new EventEmitter;
@@ -22,6 +23,7 @@ abstract class Core {
 		this.handleClose = this.handleClose.bind(this);
 		this.handleError = this.handleError.bind(this);
 		this.handleMessage = this.handleMessage.bind(this);
+		this.tryReconnect = this.tryReconnect.bind(this);
 	}
 
 	public setConfig(config: IConfig) {
@@ -86,17 +88,19 @@ abstract class Core {
 	}
 
 	private tryReconnect() {
-		if (
-			typeof this.config.reconnect === 'undefined' ||
-			this.reconnectCount >= this.config.reconnect ||
-			typeof this.ws === 'undefined' ||
-			this.status ||
-			this.ws?.readyState === this.ws.CONNECTING
-		) return;
-		
-		++this.reconnectCount;
-		this.connect();
-		setTimeout(() => this.tryReconnect(), this.config.reconnectDelay ?? 1000);
+		if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
+		this.reconnectTimer = setTimeout(() => {
+			if (
+				typeof this.config.reconnect === 'undefined' ||
+				this.reconnectCount >= this.config.reconnect ||
+				typeof this.ws === 'undefined' ||
+				this.status ||
+				this.ws?.readyState === this.ws.CONNECTING
+			) return;
+			++this.reconnectCount;
+			this.connect();
+			this.tryReconnect();
+		}, this.config.reconnectDelay ?? 1000);
 	}
 
 	private handleOpen(e: Event): void {

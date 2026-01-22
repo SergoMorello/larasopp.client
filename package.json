@@ -6,7 +6,8 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "test": "jest",
-    "build": "tsc"
+    "build": "tsc",
+	"prepublishOnly": "npm run test && npm run build"
   },
   "files": [
     "lib"

@@ -1,13 +1,13 @@
 {
   "name": "larasopp",
-  "version": "1.2.21",
+  "version": "1.2.22",
   "description": "Websocket client for laravel",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
     "test": "jest",
     "build": "tsc",
-	"prepublishOnly": "npm run test && npm run build"
+    "prepublishOnly": "npm run test && npm run build"
   },
   "files": [
     "lib"

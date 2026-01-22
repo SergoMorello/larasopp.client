@@ -6,6 +6,8 @@ declare class Larasopp extends Core {
     private readonly channels;
     constructor(config: IConfig);
     private listenResumeSubscribes;
+    user(callback: (user: any) => void): void;
+    userRefresh(callback: (user: any) => void): void;
     subscribe(channel: string): Listener;
     unsubscribe(channel: string): void;
     trigger<T>(channel: string, event: string, message: T, permission?: TPermissions, waitSubscribe?: boolean): void;

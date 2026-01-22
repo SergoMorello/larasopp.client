@@ -12,6 +12,7 @@ class Listener extends EventEmmiter.Stack {
 	private channel: string;
 	private listener?: EventListener;
 	private cacheEvents: TListenerCacheEvents;
+	private hereMap = new Map<string| number, unknown>();
 
 	constructor(channel: string, constext: Larasopp) {
 		super([]);
@@ -25,7 +26,7 @@ class Listener extends EventEmmiter.Stack {
 	public listen(event: string, callback: (data: any) => void, withCache = false) {
 
 		if (withCache && this.hasCache(event)) callback(this.getCache(event));
-		const listener = this.context.events.addListener(this.channel + ':' + event, (data) => {
+		const listener = this.context.events.addListener(`${this.channel}:${event}`, (data) => {
 			callback(data);
 			if (withCache) this.pushCache(event, data);
 		});
@@ -35,7 +36,24 @@ class Listener extends EventEmmiter.Stack {
 	}
 
 	public here(callback: (data: any) => void, withCache = true) {
-		return this.listen('__HERE', callback, withCache);
+		const listeners = new EventEmmiter.Stack();
+
+		listeners.push(this.joining((join) => {
+			this.hereMap.set(join.id, join);
+			callback([...this.hereMap.values()]);
+		}));
+
+		listeners.push(this.leaving((leave) => {
+			this.hereMap.delete(leave.id);
+			callback([...this.hereMap.values()]);
+		}))
+
+		const hereListener = this.listen('__HERE', (here) => {
+			this.hereMap = new Map(here.map((u: any) => [u.id, u]));
+			callback([...this.hereMap.values()]);
+		}, withCache);
+
+		return hereListener;
 	}
 
 	public joining(callback: (data: any) => void, withCache = false) {

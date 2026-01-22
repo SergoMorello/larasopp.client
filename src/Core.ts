@@ -143,13 +143,13 @@ abstract class Core {
 				return;
 			}
 			this.emitListener(json.channel, json.message);
-			this.events.emit(json.channel + ':' + json.event, json.message);
+			this.events.emit(`${json.channel}:${json.event}`, json.message);
 		}
 	}
 
 	private emitListener(method: TListenerEvents, channel: string): void {
 		if (ListenerEvents.includes(method)) {	
-			this.events.emit(method + ':' + channel, {
+			this.events.emit(`${method}:${channel}`, {
 				channel
 			});
 		}

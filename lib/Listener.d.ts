@@ -5,6 +5,7 @@ declare class Listener extends EventEmmiter.Stack {
     private channel;
     private listener?;
     private cacheEvents;
+    private hereMap;
     constructor(channel: string, constext: Larasopp);
     listen(event: string, callback: (data: any) => void, withCache?: boolean): this;
     here(callback: (data: any) => void, withCache?: boolean): this;

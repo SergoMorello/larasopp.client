@@ -31,6 +31,24 @@ class Larasopp extends Core {
 		});
 	}
 
+	public user(callback: (user: any) => void) {
+		if (!this.status) return;
+		this.send({me: true});
+		const listener = this.events.addListener(`__SYSTEM:user`, (e) => {
+			callback(e);
+			listener.remove();
+		});
+	}
+
+	public userRefresh(callback: (user: any) => void) {
+		if (!this.status) return;
+		this.send({me: 'refresh'});
+		const listener = this.events.addListener(`__SYSTEM:user-refresh`, (e) => {
+			callback(e);
+			listener.remove();
+		});
+	}
+
 	public subscribe(channel: string) {
 		const listener = new Listener(channel, this);
 		this.pushListener(channel, listener);
@@ -56,7 +74,7 @@ class Larasopp extends Core {
 			});
 		};
 		
-		if (waitSubscribe) this.events.addListener(event + ':' + channel, send);
+		if (waitSubscribe) this.events.addListener(`${event}:${channel}`, send);
 		send();
 	}
 

@@ -8,6 +8,9 @@
     "test": "jest",
     "build": "tsc"
   },
+  "files": [
+    "lib"
+  ],
   "jest": {
     "transform": {
       "^.+\\.[t|j]sx?$": "babel-jest"
@@ -37,6 +40,6 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
-    "easy-event-emitter": "^1.1.5"
+    "easy-event-emitter": "^1.2.3"
   }
 }

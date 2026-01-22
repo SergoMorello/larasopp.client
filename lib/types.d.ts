@@ -14,6 +14,7 @@ export type TMessage<T> = {
     token?: string;
     message?: T;
     type?: TPermissions;
+    me?: true | 'refresh';
 };
 export type TConfigDataReviver = {
     [index: string]: (value: any) => any;

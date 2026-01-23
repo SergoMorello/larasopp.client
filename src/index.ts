@@ -9,64 +9,79 @@ import type {
 	TPermissions,
 	TSocketEvents,
 	TListenerCallback,
-	TChannels
+	TChannels,
+	TUser
 } from "./types";
 
-class Larasopp extends Core {
-	private readonly channels: TChannels;
+class Larasopp<TChannelsEvents = Record<string, Record<string, unknown>>, TUserType extends TUser = TUser> extends Core {
+	private readonly channels: TChannels<TChannelsEvents, TUserType>;
 
 	constructor(config: IConfig) {
 		super(config);
 		
-		this.channels = {};
+		this.channels = {} as TChannels<TChannelsEvents, TUserType>;
 
 		this.listenResumeSubscribes();
 	}
 
 	private listenResumeSubscribes() {
 		this.addListener('open', () => {
-			Object.keys(this.channels).forEach((channel) => this.send({
-				subscribe: channel
+			(Object.keys(this.channels) as Array<keyof TChannelsEvents>).forEach((channel) => this.send({
+				subscribe: channel as string
 			}));
 		});
 	}
 
-	public user(callback: (user: any) => void) {
+	public user(callback: (user: TUserType) => void) {
 		if (!this.status) return;
 		this.send({me: true});
-		const listener = this.events.addListener(`__SYSTEM:user`, (e) => {
-			callback(e);
-			listener.remove();
-		});
+		this.events.once(`__SYSTEM:user`, callback);
 	}
 
-	public userRefresh(callback: (user: any) => void) {
+	public userRefresh(callback: (user: TUserType) => void) {
 		if (!this.status) return;
 		this.send({me: 'refresh'});
-		const listener = this.events.addListener(`__SYSTEM:user-refresh`, (e) => {
-			callback(e);
-			listener.remove();
-		});
+		this.events.once(`__SYSTEM:user-refresh`, callback);
 	}
 
-	public subscribe(channel: string) {
-		const listener = new Listener(channel, this);
+	public subscribe<K extends keyof TChannelsEvents>(channel: K): Listener<TChannelsEvents[K], TUserType> {
+		const listener = new Listener<TChannelsEvents[K], TUserType>(channel as string, this as any);
 		this.pushListener(channel, listener);
 		return listener;
 	}
 
-	public unsubscribe(channel: string) {
+	public unsubscribe<K extends keyof TChannelsEvents>(channel: K) {
 		if (!this.channels[channel]) return;
-		this.channels[channel].forEach((listener) => listener.remove());
+		this.channels[channel]!.forEach((listener) => listener.remove());
 		delete this.channels[channel];
 		this.send({
-			unsubscribe: channel
+			unsubscribe: channel as string
 		});
 	}
 
-	public trigger<T>(channel: string, event: string, message: T, permission: TPermissions = 'public', waitSubscribe: boolean = false): void {
+	public trigger<K extends keyof TChannelsEvents, E extends keyof TChannelsEvents[K]>(
+		channel: K,
+		event: E,
+		message: TChannelsEvents[K][E],
+		permission?: TPermissions,
+		waitSubscribe?: boolean
+	): void;
+	public trigger(
+		channel: string,
+		event: string,
+		message: unknown,
+		permission?: TPermissions,
+		waitSubscribe?: boolean
+	): void;
+	public trigger(
+		channel: string,
+		event: string,
+		message: unknown,
+		permission: TPermissions = 'public',
+		waitSubscribe: boolean = false
+	): void {
 		const send = () => {
-			this.send<T>({
+			this.send({
 				channel: channel,
 				event: event,
 				message: message,
@@ -78,19 +93,19 @@ class Larasopp extends Core {
 		send();
 	}
 
-	private pushListener(channel: string, listener: Listener): void {
+	private pushListener<K extends keyof TChannelsEvents>(channel: K, listener: Listener<TChannelsEvents[K], TUserType>): void {
 		if (!this.channels[channel]) {
 			this.channels[channel] = [];
 			this.send({
-				subscribe: channel
+				subscribe: channel as string
 			});
 		}
-		this.channels[channel].push(listener);
+		this.channels[channel]!.push(listener);
 	}
 
-	public countListeners(channel: string) {
+	public countListeners<K extends keyof TChannelsEvents>(channel: K): number {
 		if (!this.channels[channel]) return -1;
-		return this.channels[channel].length;
+		return this.channels[channel]!.length;
 	}
 
 	public addListener(event: TSocketEvents, callback: TListenerCallback): EventListener | undefined {

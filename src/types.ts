@@ -36,6 +36,23 @@ export interface IConfig {
 	reconnectDelay?: number;
 };
 
-export type TChannels = {
-	[channel: string]: Listener[];
+export type TUser = {
+	id: string | number;
+	[key: string]: unknown;
 };
+
+export type TChannels<TChannelsEvents = Record<string, Record<string, unknown>>, TUserType extends TUser = TUser> = {
+	[K in keyof TChannelsEvents]?: Listener<TChannelsEvents[K], TUserType>[];
+};
+
+export type TJoinData<T extends TUser = TUser> = T;
+
+export type TLeaveData<T extends TUser = TUser> = T;
+
+export type THereCallback<T extends TUser = TUser> = (users: T[]) => void;
+
+export type TListenCallback<T = unknown> = (data: T) => void;
+
+export type TJoiningCallback<T extends TUser = TUser> = (data: TJoinData<T>) => void;
+
+export type TLeavingCallback<T extends TUser = TUser> = (data: TLeaveData<T>) => void;

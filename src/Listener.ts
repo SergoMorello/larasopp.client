@@ -2,19 +2,26 @@ import EventEmmiter, {
 	type EventListener
 } from "easy-event-emitter";
 import type Larasopp from ".";
+import type {
+	TListenCallback,
+	TJoiningCallback,
+	TLeavingCallback,
+	THereCallback,
+	TUser
+} from "./types";
 
 type TListenerCacheEvents = {
 	[event: string]: unknown;
 };
 
-class Listener extends EventEmmiter.Stack {
-	private readonly context: Larasopp;
+class Listener<TEvents = Record<string, unknown>, TUserType extends TUser = TUser> extends EventEmmiter.Stack {
+	private readonly context: Larasopp<any, TUserType>;
 	private channel: string;
 	private listener?: EventListener;
 	private cacheEvents: TListenerCacheEvents;
-	private hereMap = new Map<string| number, unknown>();
+	private hereMap = new Map<string| number, TUserType>();
 
-	constructor(channel: string, constext: Larasopp) {
+	constructor(channel: string, constext: Larasopp<any, TUserType>) {
 		super([]);
 		this.channel = channel;
 		this.context = constext;
@@ -23,11 +30,34 @@ class Listener extends EventEmmiter.Stack {
 		this.here(()=>{}, true);
 	}
 
-	public listen(event: string, callback: (data: any) => void, withCache = false) {
+	public listen<K extends keyof TEvents>(
+		event: K,
+		callback: TListenCallback<TEvents[K]>,
+		withCache = false
+	): this {
+		const eventString = String(event);
+		if (withCache && this.hasCache(eventString)) {
+			callback(this.getCache(eventString) as TEvents[K]);
+		}
+		const listener = this.context.events.addListener(`${this.channel}:${eventString}`, (data) => {
+			callback(data as TEvents[K]);
+			if (withCache) this.pushCache(eventString, data);
+		});
 
-		if (withCache && this.hasCache(event)) callback(this.getCache(event));
+		this.push(listener);
+		return this;
+	}
+
+	private listenInternal<T = unknown>(
+		event: string,
+		callback: TListenCallback<T>,
+		withCache = false
+	): this {
+		if (withCache && this.hasCache(event)) {
+			callback(this.getCache(event) as T);
+		}
 		const listener = this.context.events.addListener(`${this.channel}:${event}`, (data) => {
-			callback(data);
+			callback(data as T);
 			if (withCache) this.pushCache(event, data);
 		});
 
@@ -35,7 +65,7 @@ class Listener extends EventEmmiter.Stack {
 		return this;
 	}
 
-	public here(callback: (data: any) => void, withCache = true) {
+	public here(callback: THereCallback<TUserType>, withCache = true): this {
 		const listeners = new EventEmmiter.Stack();
 
 		listeners.push(this.joining((join) => {
@@ -48,20 +78,20 @@ class Listener extends EventEmmiter.Stack {
 			callback([...this.hereMap.values()]);
 		}))
 
-		const hereListener = this.listen('__HERE', (here) => {
-			this.hereMap = new Map(here.map((u: any) => [u.id, u]));
+		const hereListener = this.listenInternal<TUserType[]>('__HERE', (here) => {
+			this.hereMap = new Map(here.map((u: TUserType) => [u.id, u]));
 			callback([...this.hereMap.values()]);
 		}, withCache);
 
 		return hereListener;
 	}
 
-	public joining(callback: (data: any) => void, withCache = false) {
-		return this.listen('__JOIN', callback, withCache);
+	public joining(callback: TJoiningCallback<TUserType>, withCache = false): this {
+		return this.listenInternal<TUserType>('__JOIN', callback, withCache);
 	}
 
-	public leaving(callback: (data: any) => void, withCache = false) {
-		return this.listen('__LEAVE', callback, withCache);
+	public leaving(callback: TLeavingCallback<TUserType>, withCache = false): this {
+		return this.listenInternal<TUserType>('__LEAVE', callback, withCache);
 	}
 
 	public unsubscribe() {

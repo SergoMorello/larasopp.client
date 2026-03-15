@@ -173,6 +173,7 @@ abstract class Core {
 			const json = this.jsonParse(e.data);
 			if (json.socket_id) {
 				this._socketId = json.socket_id;
+				this.events.emit('ready', true);
 				return;
 			}
 			this.emitListener(json.channel, json.message);

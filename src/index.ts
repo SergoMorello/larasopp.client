@@ -25,13 +25,10 @@ class Larasopp<TChannelsEvents = Record<string, Record<string, unknown>>, TUserT
 	}
 
 	private listenResumeSubscribes() {
-		this.addListener('open', () => {
-			this.user(() => {
-				(Object.keys(this.channels) as Array<keyof TChannelsEvents>).forEach((channel) => this.send({
-					subscribe: channel as string
-				}));
-				this.events.emit('ready', true);
-			});
+		this.addListener('ready', () => {
+			(Object.keys(this.channels) as Array<keyof TChannelsEvents>).forEach((channel) => this.send({
+				subscribe: channel as string
+			}));
 		});
 	}
 

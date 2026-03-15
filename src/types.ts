@@ -34,6 +34,7 @@ export interface IConfig {
 	dataReviver?: TConfigDataReviver;
 	reconnect?: number;
 	reconnectDelay?: number;
+	debug?: boolean;
 };
 
 export type TUser = {

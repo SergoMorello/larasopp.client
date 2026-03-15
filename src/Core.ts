@@ -31,6 +31,10 @@ abstract class Core {
 		return this;
 	}
 
+	public getConfig() {
+		return this.config;
+	}
+
 	public setToken(token: string) {
 		this.config = {
 			...this.config,
@@ -44,12 +48,19 @@ abstract class Core {
 		return this;
 	}
 
+	public getToken() {
+		return this.config.token;
+	}
+
 	/**
 	 * Connect to websocket
 	 * @returns {this}
 	 */
 	public connect(token?: string): this {
 		if (this.status) return this;
+		if (this.config.debug) {
+			console.log('ws_connect');
+		}
 		try {
 			if (token) this.setToken(token);
 			const host = this.config.host + '/token=' + this.config.token;
@@ -72,6 +83,9 @@ abstract class Core {
 	 * @returns {void}
 	 */
 	public disconnect(): void {
+		if (this.config.debug) {
+			console.log('ws_disconnect');
+		}
 		if (this.status) {
 			this.ws?.close();
 		}
@@ -88,6 +102,9 @@ abstract class Core {
 	}
 
 	private tryReconnect() {
+		if (this.config.debug) {
+			console.log('ws_try_reconnect', this.reconnectTimer);
+		}
 		if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
 		this.reconnectTimer = setTimeout(() => {
 			if (
@@ -104,15 +121,24 @@ abstract class Core {
 	}
 
 	private handleOpen(e: Event): void {
+		if (this.config.debug) {
+			console.log('ws_open', e);
+		}
 		this.events.emit("open", e);
 	}
 
 	private handleClose(e: CloseEvent): void {
+		if (this.config.debug) {
+			console.log('ws_close', e);
+		}
 		this.events.emit("close", e);
 		this.tryReconnect();
 	}
 
 	private handleError(e: Event): void {
+		if (this.config.debug) {
+			console.log('ws_error', e);
+		}
 		this.events.emit("error", e);
 	}
 
@@ -140,6 +166,9 @@ abstract class Core {
 	}
 
 	private handleMessage(e: MessageEvent): void {
+		if (this.config.debug) {
+			console.log('ws_message', e.data);
+		}
 		if (this.isJson(e.data)) {
 			const json = this.jsonParse(e.data);
 			if (json.socket_id) {
